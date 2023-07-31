@@ -8,7 +8,7 @@ const route = require("./routes");
 //HTTP loger
 app.use(express.static(path.join(__dirname, "")));
       app.use(morgan('combined'));
-          app.use(express.urlencoded()); //sử dung middlware vơi post dạng form
+                app.use(express.urlencoded()); //sử dung middlware vơi post dạng form
 app.use(express.json()); //XMLHttpRequest,fetch,axios với code js
 //template engine
 app.engine(".hbs", engine({ extname: ".hbs" })); //đăng ký .hbs làm một template engine trong ứng dụng Express,sử dụng file
