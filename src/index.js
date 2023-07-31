@@ -7,7 +7,7 @@ const port = 3000; // run ở cổng nào
 const route = require("./routes");
 //HTTP loger
 app.use(express.static(path.join(__dirname, "")));
-app.use(morgan("combined"));
+        app.use(morgan("combined"));
 app.use(express.urlencoded()); //sử dung middlware vơi post dạng form
 app.use(express.json()); //XMLHttpRequest,fetch,axios với code js
 //template engine
