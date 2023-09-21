@@ -7,6 +7,7 @@ const port = 3002; // run ở cổng nào
 const route = require("./routes");
 const db = require("./config/DB/index");
 const methodoverrides = require("method-override");
+const sortMiddlewares = require("./app/middlewares/SortMiddlewares.js");
 db.connect();
 //HTTP loger
 app.use(express.static(path.join(__dirname, "")));
@@ -18,11 +19,7 @@ app.engine(
   ".hbs",
   engine({
     extname: ".hbs",
-    helpers: {
-      sum: (a, b) => {
-        return a + b;
-      },
-    },
+    helpers: require("./helper/handlebars"),
   })
 ); //đăng ký .hbs làm một template engine trong ứng dụng Express,sử dụng file
 //mẫu Handlebars .handlebars,.hbs để hiển thị nội dung web,ta sửa đuôi thành .hbs
@@ -35,6 +32,7 @@ app.set("views", path.join(__dirname, "sources", "views")); //path.join(): path.
 //phần của các đường dẫn lại với nhau và tạo ra một đường dẫn tuyệt đối.
 console.log(__dirname); //__dirname là một biến toàn cục (global variable) mà chứa đường dẫn tuyệt đối đến thư mục chứa tệp đang thực thi hiện tại.
 app.use(methodoverrides("_method"));
+app.use(sortMiddlewares);
 route(app);
 
 app.listen(port, () => {

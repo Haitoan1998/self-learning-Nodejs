@@ -1,9 +1,7 @@
-<form method="POST" class="form-all" action="/courses/handle-form-action">
+<form class="form-DeleteOrRestore" method="POST">
   <div class="mt-4">
-    <h3>Khóa học của tôi</h3>
+    <h3>Thùng rác</h3>
   </div>
-  <div class="mt-2"><a href="/me/bin/mycourses">Thùng rác
-      {{count}}</a></div>
   <div class="row d-flex flex-nowrap">
     <div class="mb-3 form-check ms-3 col-1">
       <input type="checkbox" class="form-check-input" id="checkAll" />
@@ -12,26 +10,22 @@
     <div class="col-3">
       <select class="form-select" aria-label="Default select example" name="action" required>
         <option selected value="">Open this select menu</option>
-        <option value="deleteAll">Xóa tất cả</option>
-
+        <option value="deleteHard">Xóa vĩnh viễn</option>
+        <option value="restore">Restore</option>
       </select>
     </div>
     <div class="col-3">
-      <button type="submit" class="btn btn-danger buttonDelete disabled">Delete</button>
+      <button type="submit" class="btn btn-danger buttonDelete disabled">Choose action</button>
     </div>
   </div>
   <table class="table">
     <thead>
       <tr>
         <th scope="col">check</th>
-        <th scope="col"># {{{sortable '_id' _sort}}}</th>
-        <th scope="col">
-          name
-          {{{sortable 'name' _sort}}}
-
-        </th>
-        <th scope="col">description {{{sortable 'description' _sort}}}</th>
-        <th scope="col">createdAt {{{sortable 'createdAt' _sort}}}</th>
+        <th scope="col">#</th>
+        <th scope="col">name</th>
+        <th scope="col">description</th>
+        <th scope="col">deletedAt</th>
       </tr>
     </thead>
     <tbody>
@@ -45,21 +39,23 @@
         <th scope="row">{{this._id}}</th>
         <td>{{this.name}}</td>
         <td>{{this.description}}</td>
-        <td>{{this.createdAt}}</td>
+        <td>{{this.deletedAt}}</td>
         <td>
-          <a href="/courses/update/{{this._id}}" class="btn btn-link">Sửa</a>
+          <a href="/me/bin/mycourses" class="btn btn-link btn-restore" data-id="{{this._id}}">Restore</a>
           <a href="" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#delete-course-modal"
-            data-id="{{this._id}}">Xóa</a>
+            data-id="{{this._id}}">Xóa vĩnh viễn</a>
         </td>
       </tr>
       {{else}}
       <tr>
-        <td colspan="5">Bạn chưa đăng khóa học nào.<a href="/courses/create">Đăng khóa học</a></td>
+        <td colspan="5">Thùng rác trống<a href="/me/create/mycourses">Khóa học
+            của bạn</a></td>
       </tr>
       {{/each}}
     </tbody>
   </table>
 </form>
+
 {{! confirm dlt course }}
 
 <div class="modal fade" id="delete-course-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -72,28 +68,39 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">hủy</button>
-        <button id="btn-delete-course" type="button" class="btn btn-primary">XÓA</button>
+        <button id="btn-delete-course" type="button" class="btn btn-primary">XÓA
+        </button>
 
       </div>
     </div>
   </div>
 </div>
 <form method="POST" id="form-delete"></form>
+<form method="POST" id="form-restore"></form>
 <script>
   const deleteCourses = document.getElementById("delete-course-modal");
   var btnDeletecourse = document.getElementById("btn-delete-course");
   var deleteForm = document.getElementById("form-delete");
-  let courseID;
+  const restoreBtn = $('.btn-restore');
   const checkAll = $("#checkAll");
   const checkItems = $(".checkItems");
   const buttonDelete = $(".buttonDelete")
+  const dropDown = $('select')
+  const formDeleteOrRestore = $('.form-DeleteOrRestore')
+  restoreBtn.click("click", function (e) {
+    e.preventDefault();
+    var courseID = $(this).attr('data-id');
+    restoreForm.action = "/courses/" + courseID + "/restore?_method=PATCH"; restoreForm.submit()
+  });
+  var restoreForm = document.getElementById("form-restore");
+  let courseID;
   deleteCourses.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget;
     const id = button.getAttribute("data-id");
     courseID = id
   });
   btnDeletecourse.addEventListener("click", function () {
-    deleteForm.action = "/courses/" + courseID + "?_method=DELETE";
+    deleteForm.action = "/courses/" + courseID + "/hard?_method=DELETE";
     deleteForm.submit();
   });
   checkAll.change(function () {
@@ -116,6 +123,14 @@
       buttonDelete.addClass("disabled")
     }
   }
-
-
+  dropDown.change(function (event) {
+    console.log(typeof $(this).val())
+    if ($(this).val() === 'deleteHard') {
+      buttonDelete.text('Xóa vĩnh viễn')
+      formDeleteOrRestore.attr('action', "/courses/handle-form-action-hard-deleteOrRestore?_method=DELETE")
+    } else if ($(this).val() === 'restore') {
+      buttonDelete.text('restore')
+      formDeleteOrRestore.attr('action', "/courses/handle-form-action-hard-deleteOrRestore?_method=PATCH")
+    }
+  })
 </script>
